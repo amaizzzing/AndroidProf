@@ -6,12 +6,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.amaizzzing.dictionary.R
-import com.amaizzzing.dictionary.model.data.SearchResult
+import com.amaizzzing.dictionary.model.data.DataModel
+import com.amaizzzing.dictionary.utils.convertMeaningsToString
 
-class MainAdapter(private var onListItemClickListener: OnListItemClickListener, private var data: List<SearchResult>) :
+class MainAdapter(private var onListItemClickListener: OnListItemClickListener) :
     RecyclerView.Adapter<MainAdapter.RecyclerItemViewHolder>() {
 
-    fun setData(data: List<SearchResult>) {
+    private var data: List<DataModel> = arrayListOf()
+
+    fun setData(data: List<DataModel>) {
         this.data = data
         notifyDataSetChanged()
     }
@@ -24,7 +27,7 @@ class MainAdapter(private var onListItemClickListener: OnListItemClickListener, 
     }
 
     override fun onBindViewHolder(holder: RecyclerItemViewHolder, position: Int) {
-        holder.bind(data.get(position))
+        holder.bind(data[position])
     }
 
     override fun getItemCount(): Int {
@@ -32,23 +35,22 @@ class MainAdapter(private var onListItemClickListener: OnListItemClickListener, 
     }
 
     inner class RecyclerItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val header_textview_recycler_item: TextView = view.findViewById(R.id.header_textview_recycler_item)
-        val description_textview_recycler_item: TextView = view.findViewById(R.id.description_textview_recycler_item)
-        fun bind(data: SearchResult) {
+        val header_textview_recycler_item: TextView= view.findViewById(R.id.header_textview_recycler_item)
+        val description_textview_recycler_item: TextView= view.findViewById(R.id.description_textview_recycler_item)
+        fun bind(data: DataModel) {
             if (layoutPosition != RecyclerView.NO_POSITION) {
                 header_textview_recycler_item.text = data.text
-                description_textview_recycler_item.text = data.meanings?.get(0)?.translation?.translation
-
+                description_textview_recycler_item.text = convertMeaningsToString(data.meanings!!)
                 itemView.setOnClickListener { openInNewWindow(data) }
             }
         }
     }
 
-    private fun openInNewWindow(listItemData: SearchResult) {
+    private fun openInNewWindow(listItemData: DataModel) {
         onListItemClickListener.onItemClick(listItemData)
     }
 
     interface OnListItemClickListener {
-        fun onItemClick(data: SearchResult)
+        fun onItemClick(data: DataModel)
     }
 }

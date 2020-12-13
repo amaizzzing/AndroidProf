@@ -35,8 +35,8 @@ class MainAdapter(private var onListItemClickListener: OnListItemClickListener) 
     }
 
     inner class RecyclerItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val header_textview_recycler_item: TextView= view.findViewById(R.id.header_textview_recycler_item)
-        val description_textview_recycler_item: TextView= view.findViewById(R.id.description_textview_recycler_item)
+        val header_textview_recycler_item: TextView = view.findViewById(R.id.header_textview_recycler_item)
+        val description_textview_recycler_item: TextView = view.findViewById(R.id.description_textview_recycler_item)
         fun bind(data: DataModel) {
             if (layoutPosition != RecyclerView.NO_POSITION) {
                 header_textview_recycler_item.text = data.text

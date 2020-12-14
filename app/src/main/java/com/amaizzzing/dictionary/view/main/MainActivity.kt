@@ -1,32 +1,32 @@
 package com.amaizzzing.dictionary.view.main
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
-import android.widget.FrameLayout
-import android.widget.ProgressBar
-import android.widget.Toast
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.amaizzzing.dictionary.R
 import com.amaizzzing.dictionary.model.data.AppState
 import com.amaizzzing.dictionary.model.data.DataModel
+import com.amaizzzing.dictionary.utils.convertMeaningsToString
 import com.amaizzzing.dictionary.utils.network.isOnline
 import com.amaizzzing.dictionary.view.base.BaseActivity
+import com.amaizzzing.dictionary.view.descriptionscreen.DescriptionActivity
+import com.amaizzzing.dictionary.view.history.HistoryActivity
 import com.amaizzzing.dictionary.view.main.adapter.MainAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class MainActivity : BaseActivity<AppState, MainInteractor>() {
-    lateinit var main_activity_recyclerview: RecyclerView
-    lateinit var search_fab: FloatingActionButton
-    lateinit var progress_bar_horizontal: ProgressBar
-    lateinit var progress_bar_round: ProgressBar
-    lateinit var loading_frame_layout: FrameLayout
+private const val BOTTOM_SHEET_FRAGMENT_DIALOG_TAG = "74a54328-5d62-46bf-ab6b-cbf5fgt0-092395"
 
+class MainActivity : BaseActivity<AppState, MainInteractor>() {
     override lateinit var model: MainViewModel
+    lateinit var main_activity_recyclerview:RecyclerView
+    lateinit var search_fab:FloatingActionButton
+
     private val adapter: MainAdapter by lazy { MainAdapter(onListItemClickListener) }
     private val fabClickListener: View.OnClickListener =
         View.OnClickListener {
@@ -37,7 +37,14 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     private val onListItemClickListener: MainAdapter.OnListItemClickListener =
         object : MainAdapter.OnListItemClickListener {
             override fun onItemClick(data: DataModel) {
-                Toast.makeText(this@MainActivity, data.text, Toast.LENGTH_SHORT).show()
+                startActivity(
+                    DescriptionActivity.getIntent(
+                        this@MainActivity,
+                        data.text!!,
+                        convertMeaningsToString(data.meanings!!),
+                        data.meanings[0].imageUrl
+                    )
+                )
             }
         }
     private val onSearchClickListener: SearchDialogFragment.OnSearchClickListener =
@@ -55,41 +62,31 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        loading_frame_layout = findViewById(R.id.loading_frame_layout)
+        progress_bar_horizontal = findViewById(R.id.progress_bar_horizontal)
+        progress_bar_round = findViewById(R.id.progress_bar_round)
         main_activity_recyclerview = findViewById(R.id.main_activity_recyclerview)
+        search_fab = findViewById(R.id.search_fab)
         iniViewModel()
         initViews()
     }
 
-    override fun renderData(appState: AppState) {
-        when (appState) {
-            is AppState.Success -> {
-                showViewWorking()
-                val data = appState.data
-                if (data.isNullOrEmpty()) {
-                    showAlertDialog(
-                        "Sorry",
-                        getString(R.string.empty_server_response_on_success)
-                    )
-                } else {
-                    adapter.setData(data)
-                }
+    override fun setDataToAdapter(data: List<DataModel>) {
+        adapter.setData(data)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.history_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_history -> {
+                startActivity(Intent(this, HistoryActivity::class.java))
+                true
             }
-            is AppState.Loading -> {
-                showViewLoading()
-                if (appState.progress != null) {
-                    progress_bar_horizontal.visibility = VISIBLE
-                    progress_bar_round.visibility = GONE
-                    progress_bar_horizontal.progress = appState.progress
-                } else {
-                    progress_bar_horizontal.visibility = GONE
-                    progress_bar_round.visibility = VISIBLE
-                }
-            }
-            is AppState.Error -> {
-                showViewWorking()
-                showAlertDialog(getString(R.string.error_stub), appState.error.message)
-            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -103,26 +100,7 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     }
 
     private fun initViews() {
-        search_fab = findViewById(R.id.search_fab)
-        progress_bar_horizontal = findViewById(R.id.progress_bar_horizontal)
-        progress_bar_round = findViewById(R.id.progress_bar_round)
-        loading_frame_layout = findViewById(R.id.loading_frame_layout)
-
         search_fab.setOnClickListener(fabClickListener)
-        main_activity_recyclerview.layoutManager = LinearLayoutManager(applicationContext)
         main_activity_recyclerview.adapter = adapter
-    }
-
-    private fun showViewWorking() {
-        loading_frame_layout.visibility = GONE
-    }
-
-    private fun showViewLoading() {
-        loading_frame_layout.visibility = VISIBLE
-    }
-
-    companion object {
-        private const val BOTTOM_SHEET_FRAGMENT_DIALOG_TAG =
-            "74a54328-5d62-46bf-ab6b-cbf5fgt0-092395"
     }
 }

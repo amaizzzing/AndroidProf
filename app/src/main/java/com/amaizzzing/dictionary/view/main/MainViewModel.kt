@@ -2,7 +2,7 @@ package com.amaizzzing.dictionary.view.main
 
 import androidx.lifecycle.LiveData
 import com.amaizzzing.dictionary.model.data.AppState
-import com.amaizzzing.dictionary.utils.parseSearchResults
+import com.amaizzzing.dictionary.utils.parseOnlineSearchResults
 import com.amaizzzing.dictionary.viewmodel.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ class MainViewModel(private val interactor: MainInteractor) :
 
     //Doesn't have to use withContext for Retrofit call if you use .addCallAdapterFactory(CoroutineCallAdapterFactory()). The same goes for Room
     private suspend fun startInteractor(word: String, isOnline: Boolean) = withContext(Dispatchers.IO) {
-        _mutableLiveData.postValue(parseSearchResults(interactor.getData(word, isOnline)))
+        _mutableLiveData.postValue(parseOnlineSearchResults(interactor.getData(word, isOnline)))
     }
 
     override fun handleError(error: Throwable) {
@@ -33,7 +33,7 @@ class MainViewModel(private val interactor: MainInteractor) :
     }
 
     override fun onCleared() {
-        _mutableLiveData.value = AppState.Success(null)
+        _mutableLiveData.value = AppState.Success(null)//TODO Workaround. Set View to original state
         super.onCleared()
     }
 }

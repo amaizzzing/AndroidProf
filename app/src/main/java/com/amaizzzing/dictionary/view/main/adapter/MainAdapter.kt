@@ -3,11 +3,11 @@ package com.amaizzzing.dictionary.view.main.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.amaizzzing.dictionary.R
 import com.amaizzzing.dictionary.model.data.DataModel
 import com.amaizzzing.dictionary.utils.convertMeaningsToString
+import kotlinx.android.synthetic.main.activity_main_recyclerview_item.view.*
 
 class MainAdapter(private var onListItemClickListener: OnListItemClickListener) :
     RecyclerView.Adapter<MainAdapter.RecyclerItemViewHolder>() {
@@ -35,13 +35,11 @@ class MainAdapter(private var onListItemClickListener: OnListItemClickListener) 
     }
 
     inner class RecyclerItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val header_textview_recycler_item: TextView = view.findViewById(R.id.header_textview_recycler_item)
-        val description_textview_recycler_item: TextView = view.findViewById(R.id.description_textview_recycler_item)
 
         fun bind(data: DataModel) {
             if (layoutPosition != RecyclerView.NO_POSITION) {
-                header_textview_recycler_item.text = data.text
-                description_textview_recycler_item.text = convertMeaningsToString(data.meanings!!)
+                itemView.header_textview_recycler_item.text = data.text
+                itemView.description_textview_recycler_item.text = convertMeaningsToString(data.meanings!!)
                 itemView.setOnClickListener { openInNewWindow(data) }
             }
         }

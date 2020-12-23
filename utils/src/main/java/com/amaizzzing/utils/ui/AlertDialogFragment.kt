@@ -3,8 +3,6 @@ package com.amaizzzing.utils.ui
 import android.app.Dialog
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDialogFragment
-import gcom.amaizzzing.utils.ui.getAlertDialog
-import gcom.amaizzzing.utils.ui.getStubAlertDialog
 
 class AlertDialogFragment : AppCompatDialogFragment() {
 

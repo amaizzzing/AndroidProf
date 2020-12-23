@@ -1,8 +1,8 @@
 package com.amaizzzing.model.data
 
-sealed class DataModel {
+import com.google.gson.annotations.SerializedName
 
-    data class Success(val data: List<SearchResult>?) : DataModel()
-    data class Error(val error: Throwable) : DataModel()
-    data class Loading(val progress: Int?) : DataModel()
-}
+class DataModel(
+    @field:SerializedName("text") val text: String?,
+    @field:SerializedName("meanings") val meanings: List<Meanings>?
+)

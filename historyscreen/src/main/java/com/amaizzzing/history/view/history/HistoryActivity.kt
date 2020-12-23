@@ -2,10 +2,15 @@ package com.amaizzzing.history.view.history
 
 import android.os.Bundle
 import androidx.lifecycle.Observer
+import com.amaizzzing.core.BaseActivity
+import com.amaizzzing.history.R
+import com.amaizzzing.history.injectDependencies
+import com.amaizzzing.model.data.AppState
+import com.amaizzzing.model.data.DataModel
 import kotlinx.android.synthetic.main.activity_history.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class HistoryActivity : BaseActivity<DataModel, HistoryInteractor>() {
+class HistoryActivity : BaseActivity<AppState, HistoryInteractor>() {
 
     override lateinit var model: HistoryViewModel
     private val adapter: HistoryAdapter by lazy { HistoryAdapter() }
@@ -22,17 +27,16 @@ class HistoryActivity : BaseActivity<DataModel, HistoryInteractor>() {
         model.getData("", false)
     }
 
-    override fun setDataToAdapter(data: List<SearchResult>) {
+    override fun setDataToAdapter(data: List<DataModel>) {
         adapter.setData(data)
     }
 
     private fun iniViewModel() {
-        if (history_activity_recyclerview.adapter != null) {
-            throw IllegalStateException("The ViewModel should be initialised first")
-        }
+        check(history_activity_recyclerview.adapter == null) { "The ViewModel should be initialised first" }
+        injectDependencies()
         val viewModel: HistoryViewModel by viewModel()
         model = viewModel
-        model.subscribe().observe(this@HistoryActivity, Observer<DataModel> { renderData(it) })
+        model.subscribe().observe(this@HistoryActivity, Observer<AppState> { renderData(it) })
     }
 
     private fun initViews() {

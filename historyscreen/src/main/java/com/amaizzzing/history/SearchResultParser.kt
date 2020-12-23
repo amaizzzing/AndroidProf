@@ -1,16 +1,20 @@
 package com.amaizzzing.history
 
-fun parseLocalSearchResults(data: DataModel): DataModel {
-    return DataModel.Success(mapResult(data, false))
+import com.amaizzzing.model.data.AppState
+import com.amaizzzing.model.data.DataModel
+import com.amaizzzing.model.data.Meanings
+
+fun parseLocalSearchResults(data: AppState): AppState {
+    return AppState.Success(mapResult(data, false))
 }
 
 private fun mapResult(
-    data: DataModel,
+    data: AppState,
     isOnline: Boolean
-): List<SearchResult> {
-    val newSearchResults = arrayListOf<SearchResult>()
+): List<DataModel> {
+    val newSearchResults = arrayListOf<DataModel>()
     when (data) {
-        is DataModel.Success -> {
+        is AppState.Success -> {
             getSuccessResultData(data, isOnline, newSearchResults)
         }
     }
@@ -18,34 +22,34 @@ private fun mapResult(
 }
 
 private fun getSuccessResultData(
-    data: DataModel.Success,
+    data: AppState.Success,
     isOnline: Boolean,
-    newSearchResults: ArrayList<SearchResult>
+    newDataModels: ArrayList<DataModel>
 ) {
-    val searchResults: List<SearchResult> = data.data as List<SearchResult>
-    if (searchResults.isNotEmpty()) {
+    val dataModels: List<DataModel> = data.data as List<DataModel>
+    if (dataModels.isNotEmpty()) {
         if (isOnline) {
-            for (searchResult in searchResults) {
-                parseOnlineResult(searchResult, newSearchResults)
+            for (searchResult in dataModels) {
+                parseOnlineResult(searchResult, newDataModels)
             }
         } else {
-            for (searchResult in searchResults) {
-                newSearchResults.add(SearchResult(searchResult.text, arrayListOf()))
+            for (searchResult in dataModels) {
+                newDataModels.add(DataModel(searchResult.text, arrayListOf()))
             }
         }
     }
 }
 
-private fun parseOnlineResult(searchResult: SearchResult, newSearchResults: ArrayList<SearchResult>) {
-    if (!searchResult.text.isNullOrBlank() && !searchResult.meanings.isNullOrEmpty()) {
+private fun parseOnlineResult(dataModel: DataModel, newDataModels: ArrayList<DataModel>) {
+    if (!dataModel.text.isNullOrBlank() && !dataModel.meanings.isNullOrEmpty()) {
         val newMeanings = arrayListOf<Meanings>()
-        for (meaning in searchResult.meanings!!) {
+        for (meaning in dataModel.meanings!!) {
             if (meaning.translation != null && !meaning.translation!!.translation.isNullOrBlank()) {
                 newMeanings.add(Meanings(meaning.translation, meaning.imageUrl))
             }
         }
         if (newMeanings.isNotEmpty()) {
-            newSearchResults.add(SearchResult(searchResult.text, newMeanings))
+            newDataModels.add(DataModel(dataModel.text, newMeanings))
         }
     }
 }

@@ -5,27 +5,33 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.RecyclerView
+import com.amaizzzing.core.BaseActivity
 import com.amaizzzing.dictionary.R
-import com.amaizzzing.dictionary.model.data.AppState
+import com.amaizzzing.dictionary.di.injectDependencies
 import com.amaizzzing.dictionary.model.data.DataModel
 import com.amaizzzing.dictionary.utils.convertMeaningsToString
-import com.amaizzzing.dictionary.utils.network.isOnline
-import com.amaizzzing.dictionary.view.base.BaseActivity
 import com.amaizzzing.dictionary.view.descriptionscreen.DescriptionActivity
-import com.amaizzzing.dictionary.view.history.HistoryActivity
 import com.amaizzzing.dictionary.view.main.adapter.MainAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.amaizzzing.model.data.AppState
+import com.amaizzzing.translator.view.main.SearchDialogFragment
+import com.amaizzzing.utils.network.isOnline
+import com.google.android.play.core.splitinstall.SplitInstallManager
+import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
+import com.google.android.play.core.splitinstall.SplitInstallRequest
+import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 private const val BOTTOM_SHEET_FRAGMENT_DIALOG_TAG = "74a54328-5d62-46bf-ab6b-cbf5fgt0-092395"
+private const val HISTORY_ACTIVITY_PATH = "com.amaizzzing.history.view.history.HistoryActivity"
+private const val HISTORY_ACTIVITY_FEATURE_NAME = "historyScreen"
 
 class MainActivity : BaseActivity<AppState, MainInteractor>() {
+
     override lateinit var model: MainViewModel
-    lateinit var main_activity_recyclerview:RecyclerView
-    lateinit var search_fab:FloatingActionButton
+    private lateinit var splitInstallManager: SplitInstallManager
 
     private val adapter: MainAdapter by lazy { MainAdapter(onListItemClickListener) }
     private val fabClickListener: View.OnClickListener =
@@ -42,7 +48,7 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
                         this@MainActivity,
                         data.text!!,
                         convertMeaningsToString(data.meanings!!),
-                        data.meanings[0].imageUrl
+                        data.meanings!![0].imageUrl
                     )
                 )
             }
@@ -62,11 +68,6 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        loading_frame_layout = findViewById(R.id.loading_frame_layout)
-        progress_bar_horizontal = findViewById(R.id.progress_bar_horizontal)
-        progress_bar_round = findViewById(R.id.progress_bar_round)
-        main_activity_recyclerview = findViewById(R.id.main_activity_recyclerview)
-        search_fab = findViewById(R.id.search_fab)
         iniViewModel()
         initViews()
     }
@@ -83,7 +84,26 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_history -> {
-                startActivity(Intent(this, HistoryActivity::class.java))
+                splitInstallManager = SplitInstallManagerFactory.create(applicationContext)
+                val request =
+                    SplitInstallRequest
+                        .newBuilder()
+                        .addModule(HISTORY_ACTIVITY_FEATURE_NAME)
+                        .build()
+
+                splitInstallManager
+                    .startInstall(request)
+                    .addOnSuccessListener {
+                        val intent = Intent().setClassName(packageName, HISTORY_ACTIVITY_PATH)
+                        startActivity(intent)
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(
+                            applicationContext,
+                            "Couldn't download feature: " + it.message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -91,9 +111,8 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
     }
 
     private fun iniViewModel() {
-        if (main_activity_recyclerview.adapter != null) {
-            throw IllegalStateException("The ViewModel should be initialised first")
-        }
+        check(main_activity_recyclerview.adapter == null) { "The ViewModel should be initialised first" }
+        injectDependencies()
         val viewModel: MainViewModel by viewModel()
         model = viewModel
         model.subscribe().observe(this@MainActivity, Observer<AppState> { renderData(it) })

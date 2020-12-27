@@ -1,4 +1,4 @@
-package com.amaizzzing.translator.view.main
+package com.amaizzzing.dictionary.view.main
 
 import android.os.Bundle
 import android.text.Editable
@@ -11,6 +11,7 @@ import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
 import com.amaizzzing.dictionary.R
+import com.amaizzzing.utils.getEmptyString
 import kotlinx.android.synthetic.main.search_dialog_fragment.*
 
 class SearchDialogFragment : BottomSheetDialogFragment() {

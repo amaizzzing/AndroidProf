@@ -1,9 +1,9 @@
 package com.amaizzzing.dictionary.view.main
 
 import androidx.lifecycle.LiveData
-import com.amaizzzing.dictionary.model.data.AppState
+import com.amaizzzing.core.viewmodel.BaseViewModel
+import com.amaizzzing.model.data.AppState
 import com.amaizzzing.dictionary.utils.parseOnlineSearchResults
-import com.amaizzzing.dictionary.viewmodel.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

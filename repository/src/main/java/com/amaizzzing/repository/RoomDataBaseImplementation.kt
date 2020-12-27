@@ -1,12 +1,12 @@
 package com.amaizzzing.repository
 
 import com.amaizzzing.model.data.AppState
-import com.amaizzzing.model.data.DataModel
+import com.amaizzzing.model.data.dto.SearchResultDto
 import com.amaizzzing.model.room.HistoryDao
 
-class RoomDataBaseImplementation(private val historyDao: HistoryDao) : DataSourceLocal<List<DataModel>> {
+class RoomDataBaseImplementation(private val historyDao: HistoryDao) : DataSourceLocal<List<SearchResultDto>> {
 
-    override suspend fun getData(word: String): List<DataModel> {
+    override suspend fun getData(word: String): List<SearchResultDto> {
         return mapHistoryEntityToSearchResult(historyDao.all())
     }
 

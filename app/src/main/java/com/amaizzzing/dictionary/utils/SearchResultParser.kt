@@ -1,8 +1,26 @@
 package com.amaizzzing.dictionary.utils
 
-import com.amaizzzing.dictionary.model.data.AppState
-import com.amaizzzing.dictionary.model.data.DataModel
-import com.amaizzzing.dictionary.model.data.Meanings
+import com.amaizzzing.model.data.AppState
+import com.amaizzzing.model.data.dto.SearchResultDto
+import com.amaizzzing.model.data.userdata.DataModel
+import com.amaizzzing.model.data.userdata.Meaning
+import com.amaizzzing.model.data.userdata.TranslatedMeaning
+
+fun mapSearchResultToResult(searchResults: List<SearchResultDto>): List<DataModel> {
+    return searchResults.map { searchResult ->
+        var meanings: List<Meaning> = listOf()
+        searchResult.meanings?.let {
+            //Check for null for HistoryScreen
+            meanings = it.map { meaningsDto ->
+                Meaning(
+                    TranslatedMeaning(meaningsDto?.translation?.translation ?: ""),
+                    meaningsDto?.imageUrl ?: ""
+                )
+            }
+        }
+        DataModel(searchResult.text ?: "", meanings)
+    }
+}
 
 fun parseOnlineSearchResults(data: AppState): AppState {
     return AppState.Success(mapResult(data, true))
@@ -24,46 +42,52 @@ private fun mapResult(
 private fun getSuccessResultData(
     data: AppState.Success,
     isOnline: Boolean,
-    newDataModels: ArrayList<DataModel>
+    newSearchDataModels: ArrayList<DataModel>
 ) {
-    val dataModels: List<DataModel> = data.data as List<DataModel>
-    if (dataModels.isNotEmpty()) {
+    val searchDataModels: List<DataModel> = data.data as List<DataModel>
+    if (searchDataModels.isNotEmpty()) {
         if (isOnline) {
-            for (searchResult in dataModels) {
-                parseOnlineResult(searchResult, newDataModels)
+            for (searchResult in searchDataModels) {
+                parseOnlineResult(searchResult, newSearchDataModels)
             }
         } else {
-            for (searchResult in dataModels) {
-                newDataModels.add(DataModel(searchResult.text, arrayListOf()))
+            for (searchResult in searchDataModels) {
+                newSearchDataModels.add(
+                    DataModel(
+                        searchResult.text,
+                        arrayListOf()
+                    )
+                )
             }
         }
     }
 }
 
 private fun parseOnlineResult(
-    dataModel: DataModel,
-    newDataModels: ArrayList<DataModel>
+    searchDataModel: DataModel,
+    newSearchDataModels: ArrayList<DataModel>
 ) {
-    if (!dataModel.text.isNullOrBlank() && !dataModel.meanings.isNullOrEmpty()) {
-        val newMeanings = arrayListOf<Meanings>()
-        for (meaning in dataModel.meanings!!) {
-            if (meaning.translation != null && !meaning.translation!!.translation.isNullOrBlank()) {
-                newMeanings.add(Meanings(meaning.translation, meaning.imageUrl))
-            }
-        }
+    if (searchDataModel.text.isNotBlank() && searchDataModel.meanings.isNotEmpty()) {
+        val newMeanings = arrayListOf<Meaning>()
+        newMeanings.addAll(searchDataModel.meanings.filter { it.translatedMeaning.translatedMeaning.isNotBlank() })
         if (newMeanings.isNotEmpty()) {
-            newDataModels.add(DataModel(dataModel.text, newMeanings))
+            newSearchDataModels.add(
+                DataModel(
+                    searchDataModel.text,
+                    newMeanings
+                )
+            )
         }
     }
 }
 
-fun convertMeaningsToString(meanings: List<Meanings>): String {
+fun convertMeaningsToSingleString(meanings: List<Meaning>): String {
     var meaningsSeparatedByComma = String()
     for ((index, meaning) in meanings.withIndex()) {
         meaningsSeparatedByComma += if (index + 1 != meanings.size) {
-            String.format("%s%s", meaning.translation?.translation, ", ")
+            String.format("%s%s", meaning.translatedMeaning.translatedMeaning, ", ")
         } else {
-            meaning.translation?.translation
+            meaning.translatedMeaning.translatedMeaning
         }
     }
     return meaningsSeparatedByComma

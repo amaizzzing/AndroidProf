@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import com.amaizzzing.dictionary.R
+import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -16,6 +16,9 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import com.amaizzzing.dictionary.R
+import com.amaizzzing.utils.network.OnlineLiveData
+import com.amaizzzing.utils.ui.AlertDialogFragment
 import kotlinx.android.synthetic.main.activity_description.*
 
 class DescriptionActivity : AppCompatActivity() {
@@ -25,7 +28,7 @@ class DescriptionActivity : AppCompatActivity() {
         setContentView(R.layout.activity_description)
 
         setActionbarHomeButtonAsUp()
-        description_screen_swipe_refresh_layout.setOnRefreshListener{ startLoadingOrShowError() }
+        description_screen_swipe_refresh_layout.setOnRefreshListener { startLoadingOrShowError() }
         setData()
     }
 
@@ -58,18 +61,22 @@ class DescriptionActivity : AppCompatActivity() {
     }
 
     private fun startLoadingOrShowError() {
-        if (isOnline(applicationContext)) {
-            setData()
-        } else {
-            AlertDialogFragment.newInstance(
-                getString(R.string.dialog_title_device_is_offline),
-                getString(R.string.dialog_message_device_is_offline)
-            ).show(
-                supportFragmentManager,
-                DIALOG_FRAGMENT_TAG
-            )
-            stopRefreshAnimationIfNeeded()
-        }
+        OnlineLiveData(this).observe(
+            this@DescriptionActivity,
+            Observer<Boolean> {
+                if (it) {
+                    setData()
+                } else {
+                    AlertDialogFragment.newInstance(
+                        getString(R.string.dialog_title_device_is_offline),
+                        getString(R.string.dialog_message_device_is_offline)
+                    ).show(
+                        supportFragmentManager,
+                        DIALOG_FRAGMENT_TAG
+                    )
+                    stopRefreshAnimationIfNeeded()
+                }
+            })
     }
 
     private fun stopRefreshAnimationIfNeeded() {

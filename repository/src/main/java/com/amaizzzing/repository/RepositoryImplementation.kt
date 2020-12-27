@@ -1,11 +1,11 @@
 package com.amaizzzing.repository
 
-import com.amaizzzing.model.data.SearchResult
+import com.amaizzzing.model.data.dto.SearchResultDto
 
-class RepositoryImplementation(private val dataSource: DataSource<List<SearchResult>>) :
-    Repository<List<SearchResult>> {
+class RepositoryImplementation(private val dataSource: DataSource<List<SearchResultDto>>) :
+    Repository<List<SearchResultDto>> {
 
-    override suspend fun getData(word: String): List<SearchResult> {
+    override suspend fun getData(word: String): List<SearchResultDto> {
         return dataSource.getData(word)
     }
 }

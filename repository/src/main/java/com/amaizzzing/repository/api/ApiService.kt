@@ -1,6 +1,6 @@
 package com.amaizzzing.repository.api
 
-import com.amaizzzing.model.data.SearchResult
+import com.amaizzzing.model.data.dto.SearchResultDto
 import kotlinx.coroutines.Deferred
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -8,5 +8,5 @@ import retrofit2.http.Query
 interface ApiService {
 
     @GET("words/search")
-    fun searchAsync(@Query("search") wordToSearch: String): Deferred<List<SearchResult>>
+    fun searchAsync(@Query("search") wordToSearch: String): Deferred<List<SearchResultDto>>
 }

@@ -8,10 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.amaizzzing.dictionary.R
-import com.amaizzzing.dictionary.utils.getEmptyString
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
+import com.amaizzzing.dictionary.R
+import com.amaizzzing.utils.getEmptyString
+import kotlinx.android.synthetic.main.search_dialog_fragment.*
 
 class SearchDialogFragment : BottomSheetDialogFragment() {
 
@@ -53,9 +54,9 @@ class SearchDialogFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        searchEditText = view.findViewById(R.id.search_edit_text)
-        clearTextImageView = view.findViewById(R.id.clear_text_imageview)
-        searchButton = view.findViewById(R.id.search_button_textview)
+        searchEditText = search_edit_text
+        clearTextImageView = clear_text_imageview
+        searchButton = search_button_textview
 
         searchButton.setOnClickListener(onSearchButtonClickListener)
         searchEditText.addTextChangedListener(textWatcher)

@@ -1,7 +1,7 @@
 package com.amaizzzing.repository
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import com.amaizzzing.model.data.SearchResult
+import com.amaizzzing.model.data.dto.SearchResultDto
 import com.amaizzzing.repository.api.ApiService
 import com.amaizzzing.repository.api.BaseInterceptor
 import okhttp3.Interceptor
@@ -10,9 +10,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class RetrofitImplementation : DataSource<List<SearchResult>> {
+class RetrofitImplementation : DataSource<List<SearchResultDto>> {
 
-    override suspend fun getData(word: String): List<SearchResult> {
+    override suspend fun getData(word: String): List<SearchResultDto> {
         return getService(BaseInterceptor.interceptor).searchAsync(word).await()
     }
 

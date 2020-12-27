@@ -1,42 +1,44 @@
 package com.amaizzzing.core
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.amaizzzing.core.viewmodel.BaseViewModel
 import com.amaizzzing.core.viewmodel.Interactor
-import com.amaizzzing.model.data.DataModel
-import com.amaizzzing.model.data.SearchResult
-import com.amaizzzing.utils.network.isOnline
+import com.amaizzzing.model.data.AppState
+import com.amaizzzing.model.data.userdata.DataModel
+import com.amaizzzing.utils.network.OnlineLiveData
 import com.amaizzzing.utils.ui.AlertDialogFragment
 import kotlinx.android.synthetic.main.loading_layout.*
 
 private const val DIALOG_FRAGMENT_TAG = "74a54328-5d62-46bf-ab6b-cbf5d8c79522"
 
-abstract class BaseActivity<T : DataModel, I : Interactor<T>> : AppCompatActivity() {
+abstract class BaseActivity<T : AppState, I : Interactor<T>> : AppCompatActivity() {
 
-    abstract val model: BaseViewModel<T>
-    protected var isNetworkAvailable: Boolean = false
+    protected abstract val model: BaseViewModel<T>
+    protected abstract val layoutRes: Int
+    protected var isNetworkAvailable: Boolean = true
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
-        isNetworkAvailable = isOnline(applicationContext)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(layoutRes)
+        subscribeToNetworkChange()
     }
 
     override fun onResume() {
         super.onResume()
-        isNetworkAvailable = isOnline(applicationContext)
         if (!isNetworkAvailable && isDialogNull()) {
             showNoInternetConnectionDialog()
         }
     }
 
-    protected fun renderData(dataModel: T) {
-        when (dataModel) {
-            is DataModel.Success -> {
+    protected fun renderData(appState: T) {
+        when (appState) {
+            is AppState.Success -> {
                 showViewWorking()
-                dataModel.data?.let {
+                appState.data?.let {
                     if (it.isEmpty()) {
                         showAlertDialog(
                             getString(R.string.dialog_tittle_sorry),
@@ -47,20 +49,20 @@ abstract class BaseActivity<T : DataModel, I : Interactor<T>> : AppCompatActivit
                     }
                 }
             }
-            is DataModel.Loading -> {
+            is AppState.Loading -> {
                 showViewLoading()
-                if (dataModel.progress != null) {
+                if (appState.progress != null) {
                     progress_bar_horizontal.visibility = View.VISIBLE
                     progress_bar_round.visibility = View.GONE
-                    progress_bar_horizontal.progress = dataModel.progress!!
+                    progress_bar_horizontal.progress = appState.progress!!
                 } else {
                     progress_bar_horizontal.visibility = View.GONE
                     progress_bar_round.visibility = View.VISIBLE
                 }
             }
-            is DataModel.Error -> {
+            is AppState.Error -> {
                 showViewWorking()
-                showAlertDialog(getString(R.string.error_stub), dataModel.error.message)
+                showAlertDialog(getString(R.string.error_stub), appState.error.message)
             }
         }
     }
@@ -72,8 +74,9 @@ abstract class BaseActivity<T : DataModel, I : Interactor<T>> : AppCompatActivit
         )
     }
 
-    protected fun showAlertDialog(title: String?, message: String?) {
-        AlertDialogFragment.newInstance(title, message).show(supportFragmentManager, DIALOG_FRAGMENT_TAG)
+    private fun showAlertDialog(title: String?, message: String?) {
+        AlertDialogFragment.newInstance(title, message)
+            .show(supportFragmentManager, DIALOG_FRAGMENT_TAG)
     }
 
     private fun showViewWorking() {
@@ -88,5 +91,20 @@ abstract class BaseActivity<T : DataModel, I : Interactor<T>> : AppCompatActivit
         return supportFragmentManager.findFragmentByTag(DIALOG_FRAGMENT_TAG) == null
     }
 
-    abstract fun setDataToAdapter(data: List<SearchResult>)
+    private fun subscribeToNetworkChange() {
+        OnlineLiveData(this).observe(
+            this@BaseActivity,
+            Observer<Boolean> {
+                isNetworkAvailable = it
+                if (!isNetworkAvailable) {
+                    Toast.makeText(
+                        this@BaseActivity,
+                        R.string.dialog_message_device_is_offline,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            })
+    }
+
+    abstract fun setDataToAdapter(data: List<DataModel>)
 }

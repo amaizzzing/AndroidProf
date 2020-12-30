@@ -1,4 +1,4 @@
-package geekbrains.ru.history;
+package com.amaizzzing.history;
 
 import android.content.Context;
 import androidx.test.InstrumentationRegistry;
@@ -20,6 +20,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("geekbrains.ru.history.test", appContext.getPackageName());
+        assertEquals("com.amaizzzing.history.test", appContext.getPackageName());
     }
 }

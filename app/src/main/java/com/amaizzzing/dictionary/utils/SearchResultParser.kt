@@ -9,8 +9,8 @@ import com.amaizzzing.model.data.userdata.TranslatedMeaning
 fun mapSearchResultToResult(searchResults: List<SearchResultDto>): List<DataModel> {
     return searchResults.map { searchResult ->
         var meanings: List<Meaning> = listOf()
+        //Check for null for HistoryScreen
         searchResult.meanings?.let {
-            //Check for null for HistoryScreen
             meanings = it.map { meaningsDto ->
                 Meaning(
                     TranslatedMeaning(meaningsDto?.translation?.translation ?: ""),
@@ -33,13 +33,13 @@ private fun mapResult(
     val newSearchResults = arrayListOf<DataModel>()
     when (data) {
         is AppState.Success -> {
-            getSuccessResultData(data, isOnline, newSearchResults)
+            setSuccessResultData(data, isOnline, newSearchResults)
         }
     }
     return newSearchResults
 }
 
-private fun getSuccessResultData(
+private fun setSuccessResultData(
     data: AppState.Success,
     isOnline: Boolean,
     newSearchDataModels: ArrayList<DataModel>

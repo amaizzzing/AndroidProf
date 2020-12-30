@@ -17,11 +17,11 @@ fun mapHistoryEntityToSearchResult(list: List<HistoryEntity>): List<SearchResult
 fun convertDataModelSuccessToEntity(appState: AppState): HistoryEntity? {
     return when (appState) {
         is AppState.Success -> {
-            val searchResult = appState.data
-            if (searchResult.isNullOrEmpty() || searchResult[0].text.isBlank()) {
+            val data = appState.data
+            if (data.isNullOrEmpty() || data[0].text.isBlank()) {
                 null
             } else {
-                HistoryEntity(searchResult[0].text, null)
+                HistoryEntity(data[0].text, null)
             }
         }
         else -> null

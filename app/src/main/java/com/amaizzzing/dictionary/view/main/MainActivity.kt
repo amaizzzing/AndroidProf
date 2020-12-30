@@ -1,7 +1,10 @@
 package com.amaizzzing.dictionary.view.main
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -134,9 +137,12 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_screen_menu, menu)
+        menu?.findItem(R.id.menu_screen_settings)?.isVisible =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
         return super.onCreateOptionsMenu(menu)
     }
 
+    @SuppressLint("InlinedApi")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_history -> {
@@ -160,6 +166,10 @@ class MainActivity : BaseActivity<AppState, MainInteractor>() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
+                true
+            }
+            R.id.menu_screen_settings -> {
+                startActivityForResult(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY), 42)
                 true
             }
             else -> super.onOptionsItemSelected(item)

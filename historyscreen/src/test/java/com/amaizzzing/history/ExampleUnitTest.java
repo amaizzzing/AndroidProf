@@ -1,4 +1,4 @@
-package geekbrains.ru.history;
+package com.amaizzzing.history;
 
 import org.junit.Test;
 

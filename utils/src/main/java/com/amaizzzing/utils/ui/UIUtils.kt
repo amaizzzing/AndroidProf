@@ -1,4 +1,4 @@
-package gcom.amaizzzing.utils.ui
+package com.amaizzzing.utils.ui
 
 import android.content.Context
 import androidx.appcompat.app.AlertDialog

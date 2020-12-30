@@ -1,4 +1,4 @@
-package gcom.amaizzzing.history;
+package com.amaizzzing.history;
 
 import org.junit.Test;
 

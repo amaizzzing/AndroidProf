@@ -1,16 +1,16 @@
 package com.amaizzzing.repository
 
-import com.amaizzzing.model.data.DataModel
-import com.amaizzzing.model.data.SearchResult
+import com.amaizzzing.model.data.AppState
+import com.amaizzzing.model.data.dto.SearchResultDto
 
-class RepositoryImplementationLocal(private val dataSource: DataSourceLocal<List<SearchResult>>) :
-    RepositoryLocal<List<SearchResult>> {
+class RepositoryImplementationLocal(private val dataSource: DataSourceLocal<List<SearchResultDto>>) :
+    RepositoryLocal<List<SearchResultDto>> {
 
-    override suspend fun getData(word: String): List<SearchResult> {
+    override suspend fun getData(word: String): List<SearchResultDto> {
         return dataSource.getData(word)
     }
 
-    override suspend fun saveToDB(dataModel: DataModel) {
-        dataSource.saveToDB(dataModel)
+    override suspend fun saveToDB(appState: AppState) {
+        dataSource.saveToDB(appState)
     }
 }

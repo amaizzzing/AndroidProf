@@ -1,23 +1,26 @@
 package com.amaizzzing.history.view.history
 
 import com.amaizzzing.core.viewmodel.Interactor
-import com.amaizzzing.model.data.DataModel
-import com.amaizzzing.model.data.SearchResult
+import com.amaizzzing.model.data.AppState
+import com.amaizzzing.model.data.dto.SearchResultDto
 import com.amaizzzing.repository.Repository
 import com.amaizzzing.repository.RepositoryLocal
+import com.amaizzzing.dictionary.utils.mapSearchResultToResult
 
 class HistoryInteractor(
-    private val repositoryRemote: Repository<List<SearchResult>>,
-    private val repositoryLocal: RepositoryLocal<List<SearchResult>>
-) : Interactor<DataModel> {
+    private val repositoryRemote: Repository<List<SearchResultDto>>,
+    private val repositoryLocal: RepositoryLocal<List<SearchResultDto>>
+) : Interactor<AppState> {
 
-    override suspend fun getData(word: String, fromRemoteSource: Boolean): DataModel {
-        return DataModel.Success(
-            if (fromRemoteSource) {
-                repositoryRemote
-            } else {
-                repositoryLocal
-            }.getData(word)
+    override suspend fun getData(word: String, fromRemoteSource: Boolean): AppState {
+        return AppState.Success(
+            mapSearchResultToResult(
+                if (fromRemoteSource) {
+                    repositoryRemote
+                } else {
+                    repositoryLocal
+                }.getData(word)
+            )
         )
     }
 }

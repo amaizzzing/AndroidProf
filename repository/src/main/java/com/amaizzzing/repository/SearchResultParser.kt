@@ -1,27 +1,27 @@
 package com.amaizzzing.repository
 
-import com.amaizzzing.model.data.DataModel
-import com.amaizzzing.model.data.SearchResult
+import com.amaizzzing.model.data.AppState
+import com.amaizzzing.model.data.dto.SearchResultDto
 import com.amaizzzing.model.room.HistoryEntity
 
-fun mapHistoryEntityToSearchResult(list: List<HistoryEntity>): List<SearchResult> {
-    val searchResult = ArrayList<SearchResult>()
+fun mapHistoryEntityToSearchResult(list: List<HistoryEntity>): List<SearchResultDto> {
+    val searchResult = ArrayList<SearchResultDto>()
     if (!list.isNullOrEmpty()) {
         for (entity in list) {
-            searchResult.add(SearchResult(entity.word, null))
+            searchResult.add(SearchResultDto(entity.word, null))
         }
     }
     return searchResult
 }
 
-fun convertDataModelSuccessToEntity(dataModel: DataModel): HistoryEntity? {
-    return when (dataModel) {
-        is DataModel.Success -> {
-            val searchResult = dataModel.data
-            if (searchResult.isNullOrEmpty() || searchResult[0].text.isNullOrEmpty()) {
+fun convertDataModelSuccessToEntity(appState: AppState): HistoryEntity? {
+    return when (appState) {
+        is AppState.Success -> {
+            val data = appState.data
+            if (data.isNullOrEmpty() || data[0].text.isBlank()) {
                 null
             } else {
-                HistoryEntity(searchResult[0].text!!, null)
+                HistoryEntity(data[0].text, null)
             }
         }
         else -> null
